@@ -137,41 +137,44 @@
 
       <ul class="grid grid--uniform{% if collection.products_count > 0 %} grid--view-items{% endif %}">
         {% for product in collection.products %}
-          <li class="grid__item grid__item--{{section.id}} {{ grid_item_width }}">
-            {% include 'product-card-grid', max_height: max_height, product: product, show_vendor: section.settings.show_vendor %}
-          </li>
-        {% else %}
-          {% comment %}
-          Add default products to help with onboarding for collections/all only.
+          {% for option in product.options %}
 
-          The onboarding styles and products are only loaded if the
-          store has no products.
-          {% endcomment %}
-          {% if collection.handle == 'all' and collection.all_vendors.size == 0 and collection.all_types.size == 0 %}
-            <li class="grid__item">
-              <div class="grid grid--uniform">
-                {% for i in (1..limit) %}
-                  <div class="grid__item {{ grid_item_width }}">
-                    <div class="grid-view-item">
-                      <a href="#" class="grid-view-item__link">
-                        <div class="grid-view-item__image">
-                          {% capture current %}{% cycle 1, 2, 3, 4, 5, 6 %}{% endcapture %}
-                          {{ 'product-' | append: current | placeholder_svg_tag: 'placeholder-svg' }}
-                        </div>
-                        <div class="h4 grid-view-item__title">{{ 'homepage.onboarding.product_title' | t }}</div>
-                        <div class="grid-view-item__meta">
-                          <span class="product-price__price">$19.99</span>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
+            {% if option == 'Color' %}
+             {% assign index = forloop.index0 %}
+
+             {%- comment %} Capture colors for reference {% endcomment -%}
+             {% assign colors = '' %}
+             {% assign color = '' %}
+
+             {% for variant in product.variants %}
+
+             {%- comment %} Capture current color for reference and use in variant_title {% endcomment -%}
+             {% capture current_color %}
+              {{ variant.options[index] }}
+             {% endcapture %}
+
+              {%- comment %} Find unique colors in colors: ie. "Green, Blue" {% endcomment -%}
+               {% unless colors contains current_color %}
+
+               {%- comment %} Create the variant title according to the test display {% endcomment -%}
+               {% assign variant_title = product.title | append: " - " | append: current_color %}
+
+               <li class="grid__item grid__item--{{section.id}} {{ grid_item_width }}">
+                 {% include 'product-card-grid-variant', max_height: max_height, product: variant, variant_title: variant_title, show_vendor: section.settings.show_vendor  %}
+               </li>
+
+                {%- comment %} Build string reference for unique color names {% endcomment -%}
+                {% capture colors_string %}
+                {{ colors | append: current_color | append: " " }}
+                {% endcapture %}
+                {% assign colors = colors_string %}
+                {% endunless %}
+
                 {% endfor %}
-              </div>
-            </li>
-          {% else %}
-            {%- assign is_empty_collection = true -%}
-          {% endif %}
-        {% endfor %}
+              {% endif %}
+
+            {% endfor %}
+          {% endfor %}
       </ul>
     {% else %}
       <ul class="list-view-items">
