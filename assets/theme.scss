@@ -6914,7 +6914,7 @@ $transition-controls-slideshow: color 0.2s $ease-transition,
 }
 
 .price-item {
-  color: $color-body-text;
+  color: #69727b; //$color-body-text;
   font-weight: $font-weight-body--bolder;
 }
 
@@ -8683,4 +8683,3 @@ $min-height-disclosure: 92px;
     }
   }
 }
-
